@@ -1,20 +1,19 @@
 package main
 
 import (
-    "crypto/hmac"
-    "crypto/sha256"
+	"crypto/hmac"
+	"crypto/sha256"
 )
 
-// Pre-shared HMAC key
-var preSharedHMACKey = []byte("SuperSecretHMACKey")
-
+// Generate HMAC (without needing GroupKey during distribution phase)
 func GenerateHMAC(data []byte) []byte {
-    mac := hmac.New(sha256.New, preSharedHMACKey)
-    mac.Write(data)
-    return mac.Sum(nil)
+	h := hmac.New(sha256.New, []byte("static-secret-hmac-key")) // Use a static key for integrity check
+	h.Write(data)
+	return h.Sum(nil)
 }
 
+// Verify HMAC (without needing GroupKey during distribution phase)
 func VerifyHMAC(data, receivedMac []byte) bool {
-    expectedMac := GenerateHMAC(data)
-    return hmac.Equal(expectedMac, receivedMac)
+	expectedMac := GenerateHMAC(data)
+	return hmac.Equal(expectedMac, receivedMac)
 }
